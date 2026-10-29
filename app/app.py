@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -12,7 +11,15 @@ st.set_page_config(
 st.title("🌡️ Ilhas de Calor de Superfície — Rio de Janeiro")
 st.caption("Análise exploratória de imagens Landsat | 2020–2025")
 
-df = pd.read_csv("estatisticas_SUHI_2020_2025.csv")
+
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+df = pd.read_csv(
+    BASE_DIR / "data" / "estatisticas_SUHI_2020_2025.csv"
+)
+
 
 ano = st.sidebar.selectbox(
     "Selecione o ano",
