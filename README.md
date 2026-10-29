@@ -8,6 +8,40 @@ Este repositório apresenta o desenvolvimento de um dashboard científico intera
 
 O projeto integra técnicas de sensoriamento remoto, Ciência de Dados, Geoprocessamento e visualização geoespacial, permitindo analisar a distribuição espacial da Temperatura da Superfície Terrestre (*Land Surface Temperature — LST*) e indicadores relacionados à vegetação e às áreas construídas.
 
+## Produto Computacional da Pesquisa — Dashboard SUHI
+
+Como resultado do processamento de imagens Landsat 8/9 e das análises geoespaciais realizadas para o município do Rio de Janeiro, foi desenvolvido e publicado um dashboard científico interativo para exploração da Temperatura da Superfície Terrestre (LST) e de indicadores espectrais no período de 2020 a 2025.
+
+O dashboard constitui a implementação do produto computacional de visualização geoespacial previsto na proposta de pesquisa, permitindo a apresentação e a exploração dos resultados obtidos.
+
+**Acesso público ao dashboard:**
+
+https://rio-suhi-dashboard.streamlit.app/
+
+**Código-fonte e documentação científica:**
+
+https://github.com/Simone-Ingrid/rio-suhi-dashboard
+
+### Funcionalidades implementadas
+
+- Visualização de indicadores anuais de temperatura de superfície e NDVI.
+- Gráficos de evolução das estatísticas anuais.
+- Consulta às estatísticas descritivas dos seis anos analisados.
+- Visualização cartográfica interativa dos rasters LST.
+- Comparação espacial entre imagens de diferentes anos.
+- Seleção dinâmica dos períodos de análise.
+
+### Tecnologias utilizadas
+
+Python, Streamlit, Pandas, NumPy, Plotly, Rasterio, Folium, QGIS e imagens Landsat Collection 2 Level-2.
+
+### Situação do produto
+
+**Dashboard desenvolvido, publicado e acessível publicamente.**
+
+A ferramenta representa uma entrega computacional verificável da pesquisa. As análises apresentadas possuem caráter exploratório e estão sujeitas às limitações metodológicas documentadas no repositório, especialmente quanto à comparabilidade temporal das cenas e à validação dos índices espectrais.
+
+
 ## 2. Vinculação à proposta de pesquisa
 
 O presente trabalho está vinculado à proposta de pesquisa intitulada:
