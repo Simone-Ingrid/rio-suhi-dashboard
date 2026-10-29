@@ -1,0 +1,397 @@
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+
+st.set_page_config(
+    page_title="Dashboard SUHI — Rio de Janeiro",
+    page_icon="🌡️",
+    layout="wide", initial_sidebar_state="collapsed"
+)
+
+st.title("🌡️ Ilhas de Calor de Superfície — Rio de Janeiro")
+st.caption("Análise exploratória de imagens Landsat | 2020–2025")
+
+df = pd.read_csv("estatisticas_SUHI_2020_2025.csv")
+
+ano = st.sidebar.selectbox(
+    "Selecione o ano",
+    sorted(df["Ano"].unique(), reverse=True)
+)
+
+dados = df[df["Ano"] == ano].iloc[0]
+
+st.subheader(f"Indicadores de {ano}")
+
+c1, c2, c3, c4 = st.columns(4)
+
+c1.metric("LST média", f"{dados['LST_media']:.2f} °C")
+c2.metric("LST mínima", f"{dados['LST_min']:.2f} °C")
+c3.metric("LST máxima", f"{dados['LST_max']:.2f} °C")
+c4.metric("NDVI médio", f"{dados['NDVI_media']:.3f}")
+
+st.divider()
+
+col1, col2 = st.columns(2)
+
+with col1:
+    fig = px.line(
+        df,
+        x="Ano",
+        y="LST_media",
+        markers=True,
+        title="Temperatura média de superfície",
+        labels={
+            "Ano": "Ano",
+            "LST_media": "LST média (°C)"
+        }
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+with col2:
+    fig = px.line(
+        df,
+        x="Ano",
+        y="NDVI_media",
+        markers=True,
+        title="Índice de vegetação médio",
+        labels={
+            "Ano": "Ano",
+            "NDVI_media": "NDVI médio"
+        }
+    )
+    st.plotly_chart(fig, use_container_width=True)
+
+st.subheader("Estatísticas anuais")
+
+colunas = [
+    "Ano",
+    "LST_media",
+    "LST_min",
+    "LST_max",
+    "LST_desvio",
+    "NDVI_media",
+    "LST_pixels_validos",
+    "NDVI_pixels_validos"
+]
+
+st.dataframe(
+    df[colunas].round(3),
+    use_container_width=True,
+    hide_index=True
+)
+
+st.info(
+    "Resultados exploratórios. As cenas possuem datas e "
+    "coberturas válidas diferentes. A LST recebeu um filtro "
+    "provisório de 10 a 60 °C. O NDBI está em revisão."
+)
+
+
+
+# === MAPA INTERATIVO SUHI ===
+import numpy as np
+import rasterio
+import folium
+import branca.colormap as cm
+from rasterio.enums import Resampling
+from rasterio.warp import calculate_default_transform, reproject
+from streamlit_folium import st_folium
+from pathlib import Path
+
+st.divider()
+st.subheader(f"Mapa de temperatura de superfície — {ano}")
+
+@st.cache_data(show_spinner="Preparando mapa térmico...")
+def preparar_mapa(ano_selecionado):
+    caminho = Path(f"/content/LST_{ano_selecionado}_RIO.tif")
+
+    with rasterio.open(caminho) as src:
+        fator = max(1, int(np.ceil(max(src.width, src.height) / 1000)))
+        largura = max(1, src.width // fator)
+        altura = max(1, src.height // fator)
+
+        transformacao = src.transform * src.transform.scale(
+            src.width / largura, src.height / altura
+        )
+
+        origem = src.read(
+            1,
+            out_shape=(altura, largura),
+            resampling=Resampling.nearest
+        )
+
+        destino_transform, destino_largura, destino_altura = (
+            calculate_default_transform(
+                src.crs, "EPSG:4326",
+                largura, altura,
+                *rasterio.transform.array_bounds(
+                    altura, largura, transformacao
+                )
+            )
+        )
+
+        destino = np.full(
+            (destino_altura, destino_largura),
+            -9999, dtype=np.float32
+        )
+
+        reproject(
+            source=origem,
+            destination=destino,
+            src_transform=transformacao,
+            src_crs=src.crs,
+            src_nodata=-9999,
+            dst_transform=destino_transform,
+            dst_crs="EPSG:4326",
+            dst_nodata=-9999,
+            resampling=Resampling.nearest
+        )
+
+    valido = (
+        np.isfinite(destino)
+        & (destino >= 10)
+        & (destino <= 60)
+    )
+
+    paleta = np.array([
+        [33, 102, 172],
+        [103, 169, 207],
+        [255, 255, 191],
+        [253, 174, 97],
+        [178, 24, 43]
+    ], dtype=float)
+
+    posicao = np.clip((destino - 10) / 50, 0, 1) * 4
+    indice = np.minimum(posicao.astype(int), 3)
+    fracao = (posicao - indice)[..., None]
+
+    rgb = (
+        paleta[indice] * (1 - fracao)
+        + paleta[indice + 1] * fracao
+    ).astype(np.uint8)
+
+    rgba = np.zeros(
+        (destino_altura, destino_largura, 4),
+        dtype=np.uint8
+    )
+    rgba[:, :, :3] = rgb
+    rgba[:, :, 3] = np.where(valido, 230, 0)
+
+    oeste, sul, leste, norte = rasterio.transform.array_bounds(
+        destino_altura, destino_largura, destino_transform
+    )
+
+    return rgba, [[sul, oeste], [norte, leste]]
+
+try:
+    imagem, limites_mapa = preparar_mapa(ano)
+
+    centro_mapa = [
+        (limites_mapa[0][0] + limites_mapa[1][0]) / 2,
+        (limites_mapa[0][1] + limites_mapa[1][1]) / 2
+    ]
+
+    mapa_suhi = folium.Map(
+        location=centro_mapa,
+        tiles=None,
+        zoom_control=True,
+        control_scale=True
+    )
+
+    folium.raster_layers.ImageOverlay(
+        image=imagem,
+        bounds=limites_mapa,
+        opacity=1,
+        name=f"LST {ano}"
+    ).add_to(mapa_suhi)
+
+    escala = cm.LinearColormap(
+        ["#2166ac", "#67a9cf", "#ffffbf",
+         "#fdae61", "#b2182b"],
+        vmin=10,
+        vmax=60,
+        caption="Temperatura de superfície (°C)"
+    )
+    escala.add_to(mapa_suhi)
+
+    # Ajusta automaticamente a visualização à extensão do raster
+    mapa_suhi.fit_bounds(
+        limites_mapa,
+        padding=(45, 45),
+        max_zoom=10
+    )
+
+    # Exibe o mapa em uma área mais ampla
+    st_folium(
+        mapa_suhi,
+        width=None,
+        height=700,
+        returned_objects=[],
+        key=f"mapa_{ano}"
+    )
+
+    st.caption(
+        "LST Landsat 8/9 em °C. Pixels transparentes representam "
+        "ausência de dados válidos. Escala fixa: 10–60 °C."
+    )
+
+except FileNotFoundError:
+    st.warning(
+        f"Arquivo LST_{ano}_RIO.tif não encontrado em /content."
+    )
+
+
+
+# === COMPARACAO ESPACIAL SUHI ===
+
+st.divider()
+st.subheader("Comparação espacial entre dois anos")
+
+st.caption(
+    "Compare a distribuição espacial da temperatura de superfície "
+    "em duas cenas Landsat. Os mapas utilizam a mesma escala "
+    "de cores, de 10 °C a 60 °C."
+)
+
+anos_disponiveis = list(range(2020, 2026))
+
+seletor_esquerdo, seletor_direito = st.columns(2)
+
+with seletor_esquerdo:
+    ano_esquerdo = st.selectbox(
+        "Ano do primeiro mapa",
+        anos_disponiveis,
+        index=0,
+        key="comparacao_ano_1"
+    )
+
+with seletor_direito:
+    ano_direito = st.selectbox(
+        "Ano do segundo mapa",
+        anos_disponiveis,
+        index=5,
+        key="comparacao_ano_2"
+    )
+
+
+def construir_mapa_comparativo(ano_mapa):
+    imagem, limites = preparar_mapa(ano_mapa)
+
+    centro = [
+        (limites[0][0] + limites[1][0]) / 2,
+        (limites[0][1] + limites[1][1]) / 2
+    ]
+
+    mapa = folium.Map(
+        location=centro,
+        tiles=None,
+        zoom_control=True,
+        control_scale=True
+    )
+
+    folium.raster_layers.ImageOverlay(
+        image=imagem,
+        bounds=limites,
+        opacity=1,
+        name=f"LST {ano_mapa}"
+    ).add_to(mapa)
+
+    mapa.fit_bounds(
+        limites,
+        padding=(15, 15)
+    )
+
+    return mapa
+
+
+coluna_mapa_1, coluna_mapa_2 = st.columns(2)
+
+with coluna_mapa_1:
+    st.markdown(f"**LST — {ano_esquerdo}**")
+
+    try:
+        mapa_1 = construir_mapa_comparativo(ano_esquerdo)
+
+        st_folium(
+            mapa_1,
+            width=None,
+            height=450,
+            returned_objects=[],
+            key=f"comparacao_mapa_1_{ano_esquerdo}"
+        )
+
+    except FileNotFoundError:
+        st.warning(
+            f"Raster LST_{ano_esquerdo}_RIO.tif não encontrado."
+        )
+
+with coluna_mapa_2:
+    st.markdown(f"**LST — {ano_direito}**")
+
+    try:
+        mapa_2 = construir_mapa_comparativo(ano_direito)
+
+        st_folium(
+            mapa_2,
+            width=None,
+            height=450,
+            returned_objects=[],
+            key=f"comparacao_mapa_2_{ano_direito}"
+        )
+
+    except FileNotFoundError:
+        st.warning(
+            f"Raster LST_{ano_direito}_RIO.tif não encontrado."
+        )
+
+
+# Escala térmica compartilhada
+escala_comparacao = cm.LinearColormap(
+    [
+        "#2166ac",
+        "#67a9cf",
+        "#ffffbf",
+        "#fdae61",
+        "#b2182b"
+    ],
+    vmin=10,
+    vmax=60
+)
+
+st.markdown("**Escala térmica compartilhada (°C)**")
+
+st.image(
+    "data:image/svg+xml;base64," +
+    __import__("base64").b64encode(
+        (
+            '<svg xmlns="http://www.w3.org/2000/svg" '
+            'width="700" height="55">'
+            '<defs><linearGradient id="g">'
+            '<stop offset="0%" stop-color="#2166ac"/>'
+            '<stop offset="25%" stop-color="#67a9cf"/>'
+            '<stop offset="50%" stop-color="#ffffbf"/>'
+            '<stop offset="75%" stop-color="#fdae61"/>'
+            '<stop offset="100%" stop-color="#b2182b"/>'
+            '</linearGradient></defs>'
+            '<rect x="20" y="5" width="660" height="20" '
+            'fill="url(#g)"/>'
+            '<g font-size="14" fill="#333">'
+            '<text x="20" y="45">10</text>'
+            '<text x="180" y="45">23</text>'
+            '<text x="345" y="45">35</text>'
+            '<text x="510" y="45">48</text>'
+            '<text x="655" y="45">60 °C</text>'
+            '</g></svg>'
+        ).encode("utf-8")
+    ).decode("ascii"),
+    use_container_width=True
+)
+
+st.info(
+    "Comparação visual exploratória: as cenas Landsat "
+    "foram adquiridas em datas diferentes e apresentam "
+    "coberturas distintas de pixels válidos. "
+    "Diferenças de cor não representam, isoladamente, "
+    "mudanças comprovadas na intensidade das ilhas de calor."
+)
