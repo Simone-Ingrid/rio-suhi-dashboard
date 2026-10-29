@@ -111,8 +111,8 @@ st.subheader(f"Mapa de temperatura de superfície — {ano}")
 
 @st.cache_data(show_spinner="Preparando mapa térmico...")
 def preparar_mapa(ano_selecionado):
-    caminho = Path(f"/content/LST_{ano_selecionado}_RIO.tif")
-
+    caminho = (Path(__file__).resolve().parent.parent / "data" / "rasters" / f"LST_{ano_selecionado}_RIO.tif")
+    
     with rasterio.open(caminho) as src:
         fator = max(1, int(np.ceil(max(src.width, src.height) / 1000)))
         largura = max(1, src.width // fator)
