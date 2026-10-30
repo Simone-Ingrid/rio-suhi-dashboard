@@ -1,9 +1,10 @@
-
 streamlit
-pandas
-numpy
+pandas==2.2.3
+numpy==2.1.3
 plotly
 rasterio
 folium
 streamlit-folium
 branca
+scikit-learn==1.6.1
+joblib==1.6.0
