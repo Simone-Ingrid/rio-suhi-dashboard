@@ -1,181 +1,266 @@
 # Ilhas de Calor de Superfície no Município do Rio de Janeiro (2020–2025)
 
-**Dashboard científico interativo desenvolvido como produto computacional da pesquisa sobre identificação e predição de ilhas de calor urbanas no município do Rio de Janeiro.**
+**Dashboard científico interativo para análise geoespacial e modelagem estatística da Temperatura da Superfície Terrestre (LST), utilizando sensoriamento remoto, dados meteorológicos e aprendizado de máquina.**
+
+🌐 **[Acessar o dashboard](https://rio-suhi-dashboard.streamlit.app/)**
+
+💻 **[Repositório GitHub](https://github.com/Simone-Ingrid/rio-suhi-dashboard)**
 
 ## 1. Apresentação do projeto
 
-Este repositório apresenta o desenvolvimento de um dashboard científico interativo para análise exploratória das Ilhas de Calor de Superfície (*Surface Urban Heat Islands — SUHI*) no município do Rio de Janeiro, utilizando imagens dos satélites Landsat 8 e Landsat 9, referentes ao período de 2020 a 2025.
+Este repositório apresenta o desenvolvimento de um produto computacional associado à pesquisa **“Modelo Computacional para Identificação e Predição de Ilhas de Calor Urbanas no Município do Rio de Janeiro utilizando Ciência de Dados e Geoprocessamento”**, proposta por Simone Gama em abril de 2026.
 
-O projeto integra técnicas de sensoriamento remoto, Ciência de Dados, Geoprocessamento e visualização geoespacial, permitindo analisar a distribuição espacial da Temperatura da Superfície Terrestre (*Land Surface Temperature — LST*) e indicadores relacionados à vegetação e às áreas construídas.
+O projeto utiliza imagens Landsat 8 e Landsat 9, referentes ao período de 2020 a 2025, para investigar a distribuição espacial da Temperatura da Superfície Terrestre (*Land Surface Temperature — LST*) e sua associação com indicadores ambientais e meteorológicos.
 
-## Produto Computacional da Pesquisa — Dashboard SUHI
+O principal produto implementado é um dashboard científico desenvolvido em Python e Streamlit, disponibilizando análises exploratórias, mapas interativos, comparações espaciais e resultados de modelos de aprendizado de máquina.
 
-Como resultado do processamento de imagens Landsat 8/9 e das análises geoespaciais realizadas para o município do Rio de Janeiro, foi desenvolvido e publicado um dashboard científico interativo para exploração da Temperatura da Superfície Terrestre (LST) e de indicadores espectrais no período de 2020 a 2025.
+## 2. Objetivos
 
-O dashboard constitui a implementação do produto computacional de visualização geoespacial previsto na proposta de pesquisa, permitindo a apresentação e a exploração dos resultados obtidos.
+O projeto tem como objetivos:
 
-**Acesso público ao dashboard:**
+- Processar e organizar dados de sensoriamento remoto para o município do Rio de Janeiro.
+- Investigar padrões espaciais de temperatura superficial e vegetação.
+- Desenvolver ferramentas interativas para visualização de dados geoespaciais.
+- Avaliar modelos estatísticos e de aprendizado de máquina para estimativa da LST.
+- Investigar a capacidade de generalização temporal dos modelos.
+- Estabelecer uma base computacional para estudos posteriores de vulnerabilidade climática urbana.
+
+## 3. Dados utilizados
+
+| Característica | Descrição |
+|---|---|
+| Área de estudo | Município do Rio de Janeiro, Brasil |
+| Período | 2020–2025 |
+| Satélites | Landsat 8 e Landsat 9 |
+| Produto | Landsat Collection 2, Level-2 |
+| Resolução espacial | 30 metros |
+| Sistema de referência | EPSG:32623 |
+| Variável térmica | LST (°C) |
+| Índice de vegetação | NDVI |
+| Índice de áreas construídas | NDBI — processamento realizado, com validação adicional pendente |
+| Variável meteorológica | Temperatura do ar obtida de dados históricos ERA5-Land |
+
+Foram utilizadas seis cenas Landsat, uma por ano, adquiridas entre janeiro e fevereiro.
+
+As aquisições ocorreram aproximadamente às 12h52 UTC (09h52 no horário de Brasília).
+
+## 4. Metodologia computacional
+
+O processamento geoespacial foi realizado principalmente no QGIS, com etapas complementares desenvolvidas em Python e Google Colab.
+
+As principais operações compreenderam:
+
+1. Aquisição e organização das imagens Landsat.
+2. Aplicação de máscaras de qualidade para identificação de pixels inválidos.
+3. Conversão da banda térmica ST_B10 para temperatura em graus Celsius.
+4. Cálculo dos índices espectrais NDVI e NDBI.
+5. Tratamento de valores NoData.
+6. Recorte espacial ao limite administrativo do município.
+7. Extração de estatísticas anuais.
+8. Desenvolvimento de mapas interativos e visualizações estatísticas.
+9. Construção de bases de dados para aprendizado de máquina.
+10. Treinamento e avaliação de modelos com separação espacial e temporal.
+
+A conversão da temperatura de superfície utilizou os fatores de escala e deslocamento do produto Landsat Collection 2 Level-2.
+
+## 5. Dashboard científico
+
+O dashboard está publicado e acessível em:
 
 https://rio-suhi-dashboard.streamlit.app/
 
-**Código-fonte e documentação científica:**
-
-https://github.com/Simone-Ingrid/rio-suhi-dashboard
-
 ### Funcionalidades implementadas
 
-- Visualização de indicadores anuais de temperatura de superfície e NDVI.
-- Gráficos de evolução das estatísticas anuais.
-- Consulta às estatísticas descritivas dos seis anos analisados.
-- Visualização cartográfica interativa dos rasters LST.
-- Comparação espacial entre imagens de diferentes anos.
-- Seleção dinâmica dos períodos de análise.
+- Seleção interativa dos anos de 2020 a 2025.
+- Visualização de estatísticas anuais de LST e NDVI.
+- Gráficos comparativos dos indicadores.
+- Mapas interativos de temperatura superficial.
+- Comparação espacial entre diferentes anos.
+- Apresentação dos resultados de modelagem espacial de 2025.
+- Estimativa interativa de LST a partir do NDVI, utilizando Random Forest treinado com dados de 2025.
+- Comparação de modelos de generalização temporal para 2020–2025.
+- Visualização de métricas de desempenho e limitações metodológicas.
 
-### Tecnologias utilizadas
+A estimativa interativa de 2025 constitui uma aproximação estatística baseada nos dados utilizados no treinamento, não uma previsão meteorológica para datas futuras.
 
-Python, Streamlit, Pandas, NumPy, Plotly, Rasterio, Folium, QGIS e imagens Landsat Collection 2 Level-2.
+## 6. Modelagem espacial — 2025
 
-### Situação do produto
+Foram avaliados dois algoritmos para estimar a LST a partir do NDVI:
 
-**Dashboard desenvolvido, publicado e acessível publicamente.**
+- Regressão Linear.
+- Random Forest Regressor.
 
-A ferramenta representa uma entrega computacional verificável da pesquisa. As análises apresentadas possuem caráter exploratório e estão sujeitas às limitações metodológicas documentadas no repositório, especialmente quanto à comparabilidade temporal das cenas e à validação dos índices espectrais.
+A base de modelagem utilizou 100.000 pixels amostrados da cena de 2025.
 
+A avaliação foi realizada com separação espacial de blocos de pixels, reduzindo a sobreposição espacial direta entre treinamento e teste.
 
-## 2. Vinculação à proposta de pesquisa
+### Resultados
 
-O presente trabalho está vinculado à proposta de pesquisa intitulada:
+| Modelo | MAE (°C) | RMSE (°C) | R² |
+|---|---:|---:|---:|
+| Regressão Linear | 2,4326 | 3,1454 | 0,6843 |
+| Random Forest | **2,2152** | **2,8937** | **0,7328** |
 
-**“Modelo Computacional para Identificação e Predição de Ilhas de Calor Urbanas no Município do Rio de Janeiro utilizando Ciência de Dados e Geoprocessamento”**
+O Random Forest apresentou melhor desempenho no experimento espacial de 2025.
 
-- **Autoria da proposta:** Simone Gama
-- **Data da proposta:** Abril de 2026
-- **Área de aplicação:** Ciência de Dados, Geoprocessamento e Sustentabilidade Urbana
-- **Área de estudo:** Município do Rio de Janeiro, Brasil
+Entretanto, esses resultados não demonstram capacidade de previsão para outros anos.
 
-A proposta estabelece como objetivo geral o desenvolvimento de um modelo computacional para identificação, modelagem e predição de áreas de maior vulnerabilidade às ilhas de calor urbanas.
+## 7. Modelagem multianual — 2020 a 2025
 
-Entre seus objetivos específicos, destaca-se a construção de visualizações geoespaciais interativas, por meio de dashboard ou protótipo de sistema web, destinadas a apoiar a análise de informações ambientais e a tomada de decisão.
+Foi construída uma base experimental contendo 600.000 observações, correspondentes a 100.000 pixels amostrados por ano.
 
-Nesse contexto, o dashboard disponibilizado neste repositório representa a **materialização do produto computacional de visualização interativa previsto na proposta original**, consolidando os resultados do processamento geoespacial em uma ferramenta acessível e organizada.
+Foram investigadas duas variáveis explicativas:
 
-## 3. Produto computacional resultante da pesquisa
+- NDVI, associado às características espectrais da vegetação.
+- Temperatura do ar, utilizada para representar parte das condições meteorológicas da cena.
 
-### Dashboard de Análise de Ilhas de Calor de Superfície — Rio de Janeiro
+### 7.1. Integração meteorológica
 
-O principal produto tecnológico implementado nesta etapa da pesquisa é um dashboard científico desenvolvido em Python, utilizando o framework Streamlit.
+Os horários de aquisição foram recuperados dos metadados Landsat.
 
-Sua implementação constitui o resultado da integração das atividades de aquisição, processamento, tratamento, análise estatística e visualização de dados geoespaciais.
+A temperatura do ar no horário aproximado de passagem dos satélites foi estimada por interpolação temporal entre os registros meteorológicos horários.
 
-O dashboard permite:
+Essa variável foi utilizada para investigar se a inclusão de informações meteorológicas melhora a generalização temporal dos modelos.
 
-- Selecionar o ano de análise entre 2020 e 2025.
-- Visualizar indicadores estatísticos de temperatura de superfície.
-- Consultar valores médios de NDVI.
-- Examinar estatísticas anuais dos dados processados.
-- Explorar mapas interativos de temperatura de superfície.
-- Comparar espacialmente dois anos selecionados.
-- Identificar visualmente padrões de distribuição térmica no território municipal.
+### 7.2. Estratégia de validação
 
-A ferramenta foi desenvolvida para facilitar a interpretação dos resultados e demonstrar a aplicação prática de técnicas computacionais ao estudo das ilhas de calor de superfície.
+Foi utilizada a estratégia *Leave-One-Year-Out* (LOYO).
 
-**Assim, o dashboard constitui uma entrega concreta da pesquisa, atendendo ao objetivo específico de implementação de um protótipo de visualização geoespacial interativa e à etapa correspondente prevista no cronograma original.**
+Em cada experimento, cinco anos foram utilizados no treinamento e o ano restante foi reservado para teste.
 
-### 3.1. Relação entre os objetivos propostos e os resultados implementados
+O procedimento foi repetido seis vezes, permitindo avaliar o comportamento dos modelos em cenas não utilizadas no respectivo treinamento.
 
-| Elemento da proposta | Resultado implementado | Situação |
-|---|---|---|
-| Aquisição e pré-processamento de dados geoespaciais | Processamento de imagens Landsat 8/9 | Implementado para os dados Landsat |
-| Análise exploratória de dados | Estatísticas de LST e NDVI para 2020–2025 | Implementado |
-| Construção de mapas temáticos | Mapas de temperatura de superfície | Implementado |
-| Visualização geoespacial interativa | Dashboard Streamlit com mapas Folium | Implementado |
-| Comparação espacial e temporal exploratória | Seleção e comparação visual entre anos | Implementado |
-| Integração de dados climáticos e socioeconômicos | Integração completa das bases propostas | Em processo de finalização |
-| Modelagem estatística e aprendizado de máquina | Modelos de predição de risco térmico | Em processo de finalização |
-| Avaliação de modelos preditivos | RMSE, MAE, R² e validação cruzada | Em processo de finalização |
-| Indicador composto de vulnerabilidade climática | Indicador integrado de risco | Em processo de finalização |
+### 7.3. Resultados comparativos
 
-A distinção entre funcionalidades implementadas e etapas pendentes assegura a rastreabilidade dos resultados em relação aos objetivos estabelecidos na proposta.
+| Algoritmo | Variáveis | MAE médio (°C) | RMSE médio (°C) | R² médio |
+|---|---|---:|---:|---:|
+| Regressão Linear | NDVI | 5,3281 | 6,4099 | −0,4507 |
+| Regressão Linear | NDVI + temperatura às 11h | 4,7220 | 5,6955 | −0,2394 |
+| Regressão Linear | NDVI + temperatura na aquisição | 4,8479 | 5,8392 | −0,2603 |
+| Random Forest | NDVI | 5,3573 | 6,4231 | −0,4558 |
+| **Random Forest** | **NDVI + temperatura na aquisição** | **3,2949** | **4,1389** | **0,3887** |
 
-## 4. Objetivo do dashboard
+Os valores correspondem às médias aritméticas das métricas obtidas nos seis anos de teste.
 
-Disponibilizar uma ferramenta computacional interativa para exploração e visualização de dados de temperatura de superfície e indicadores espectrais, permitindo identificar padrões espaciais associados às características ambientais do município do Rio de Janeiro.
+O Random Forest com NDVI e temperatura do ar apresentou o melhor desempenho médio, reduzindo aproximadamente 38,5% do MAE em relação ao Random Forest que utiliza somente NDVI.
 
-O dashboard também estabelece uma base computacional para futuras extensões voltadas à modelagem preditiva e à análise integrada de vulnerabilidade climática.
+A melhoria ocorreu em cinco dos seis anos avaliados. Em 2024, o modelo com temperatura do ar apresentou erro superior ao modelo baseado somente em NDVI.
 
-## 5. Dados utilizados
+### 7.4. Visualização dos resultados
 
-- **Satélites:** Landsat 8 e Landsat 9.
-- **Produto:** Landsat Collection 2, Level-2.
-- **Período de análise:** 2020–2025.
-- **Área de estudo:** Município do Rio de Janeiro.
-- **Resolução espacial de trabalho:** 30 metros.
-- **Indicadores processados:** LST, NDVI e NDBI.
-- **Sistema de referência dos rasters recortados:** EPSG:32623.
+![Comparação dos modelos multianuais](assets/comparacao_modelos_multianuais.png)
 
-## 6. Metodologia computacional
+*Figura 1 — Comparação de MAE e RMSE médios na validação temporal LOYO.*
 
-O desenvolvimento do produto compreendeu as seguintes etapas:
+![Desempenho anual do Random Forest](assets/random_forest_mae_por_ano.png)
 
-1. Aquisição e organização das imagens Landsat.
-2. Aplicação de máscaras de qualidade para tratamento de nuvens e pixels inválidos.
-3. Cálculo da temperatura de superfície em graus Celsius.
-4. Cálculo dos índices espectrais NDVI e NDBI.
-5. Tratamento de valores inválidos e definição de NoData.
-6. Recorte das imagens ao limite administrativo do município.
-7. Extração e organização de estatísticas anuais.
-8. Implementação de mapas temáticos interativos.
-9. Desenvolvimento e integração dos componentes do dashboard.
-10. Implementação da comparação espacial entre anos.
+*Figura 2 — Comparação do MAE anual do Random Forest com e sem integração meteorológica.*
 
-Os procedimentos e parâmetros serão detalhados nos documentos metodológicos deste repositório.
+## 8. Principais resultados científicos
 
-## 7. Tecnologias utilizadas
+Os experimentos permitiram identificar os seguintes comportamentos:
+
+- Associação negativa entre NDVI e LST nas seis cenas analisadas.
+- Desempenho favorável do Random Forest na modelagem espacial de 2025.
+- Limitações de generalização temporal dos modelos que utilizam exclusivamente NDVI.
+- Melhoria média da generalização temporal com a inclusão da temperatura do ar no Random Forest.
+- Sensibilidade dos modelos às condições específicas de determinados anos.
+- Importância da avaliação temporal independente da avaliação espacial.
+
+Esses resultados indicam que a modelagem da LST pode se beneficiar da integração de variáveis espectrais e meteorológicas, mas a robustez temporal ainda exige investigação adicional.
+
+## 9. Limitações metodológicas
+
+Os resultados devem ser interpretados considerando as seguintes limitações:
+
+1. **Quantidade de cenas:** foram utilizadas apenas seis imagens Landsat, uma por ano.
+2. **Independência meteorológica:** embora a base contenha 600.000 observações de pixels, existem somente seis condições meteorológicas de aquisição.
+3. **Comparabilidade temporal:** as cenas foram obtidas em datas e condições ambientais diferentes.
+4. **Cobertura espacial:** a quantidade e a distribuição dos pixels válidos variam entre os anos.
+5. **Generalização:** a validação LOYO oferece uma avaliação exploratória, mas não comprova desempenho confiável para anos futuros.
+6. **Índices espectrais:** o processamento multianual do NDBI ainda necessita de validação adicional.
+7. **Interpretação estatística:** associações entre NDVI, temperatura do ar e LST não demonstram causalidade.
+
+Os resultados não devem ser interpretados isoladamente como evidência de tendência climática, aquecimento urbano de longo prazo ou efeito causal de transformações no uso do solo.
+
+## 10. Tecnologias utilizadas
 
 | Tecnologia | Aplicação |
 |---|---|
-| QGIS | Processamento e análise geoespacial |
-| Python | Implementação das rotinas computacionais |
-| Rasterio | Leitura, manipulação e reprojeção de rasters |
-| NumPy | Processamento matricial |
-| Pandas | Organização de estatísticas |
-| Streamlit | Desenvolvimento do dashboard |
-| Folium | Visualização cartográfica interativa |
-| Google Colab | Ambiente de desenvolvimento e execução |
-| GitHub | Versionamento, documentação e disponibilização do produto |
+| Python | Processamento, análise e modelagem |
+| QGIS | Geoprocessamento e tratamento dos rasters |
+| Rasterio | Leitura e processamento de dados matriciais |
+| NumPy | Operações numéricas |
+| Pandas | Manipulação e organização de dados |
+| Scikit-learn | Modelagem estatística e aprendizado de máquina |
+| Joblib | Serialização de modelos |
+| Matplotlib | Gráficos científicos |
+| Plotly | Visualizações interativas |
+| Folium | Mapas interativos |
+| Streamlit | Dashboard científico |
+| Google Colab | Desenvolvimento e experimentação |
+| GitHub | Versionamento e disponibilização do projeto |
 
-## 8. Resultados e contribuições
+## 11. Organização do repositório
 
-O desenvolvimento do dashboard demonstra a viabilidade de integrar produtos de sensoriamento remoto e ferramentas de Ciência de Dados em uma aplicação computacional para análise exploratória de ilhas de calor de superfície.
+```text
+rio-suhi-dashboard/
+├── app/
+│   └── app.py
+├── assets/
+│   ├── comparacao_modelos_multianuais.png
+│   └── random_forest_mae_por_ano.png
+├── data/
+│   ├── rasters/
+│   ├── estatisticas_SUHI_2020_2025.csv
+│   ├── comparacao_modelos_multianuais.csv
+│   ├── resultados_rf_multianual_loyo.csv
+│   ├── resumo_meteorologico_2020_2025.csv
+│   ├── temperatura_ar_aquisicao_2020_2025.csv
+│   └── datas_cenas_landsat.csv
+├── docs/
+├── models/
+│   └── random_forest_lst_2025_compactado.joblib
+├── notebooks/
+├── requirements.txt
+└── README.md
+```
 
-Entre as principais contribuições desta etapa destacam-se:
+## 12. Situação em relação à proposta de pesquisa
 
-- Sistematização de dados geoespaciais de seis anos.
-- Construção de indicadores estatísticos de temperatura superficial.
-- Produção de visualizações cartográficas interativas.
-- Implementação de uma interface para exploração dos resultados.
-- Desenvolvimento de um produto computacional associado diretamente à proposta de pesquisa.
-- Estabelecimento de uma estrutura inicial para documentação e reprodutibilidade.
+| Objetivo | Situação |
+|---|---|
+| Aquisição e processamento Landsat | Implementado |
+| Análise exploratória de LST e NDVI | Implementado |
+| Mapas geoespaciais interativos | Implementado |
+| Dashboard científico público | Implementado |
+| Modelagem espacial de LST | Implementado para 2025 |
+| Modelagem temporal multianual | Experimentos exploratórios concluídos |
+| Integração de temperatura do ar | Implementada experimentalmente |
+| Integração socioeconômica | Pendente |
+| Indicador composto de vulnerabilidade climática | Pendente |
+| Validação ampliada com novas cenas e condições ambientais | Pendente |
 
-## 9. Limitações e continuidade da pesquisa
+O projeto apresenta um produto computacional funcional e resultados experimentais documentados, mas ainda não contempla integralmente todos os objetivos da proposta original.
 
-As imagens analisadas correspondem a cenas Landsat adquiridas em diferentes datas e apresentam variações de cobertura de pixels válidos.
+## 13. Continuidade da pesquisa
 
-Portanto, a comparação entre os anos possui caráter exploratório e não permite, isoladamente, atribuir mudanças térmicas a transformações urbanas ou climáticas.
+Como possibilidades de desenvolvimento futuro, destacam-se:
 
-O dashboard atual concentra-se na análise descritiva e espacial da temperatura de superfície.
+- Ampliação da base de cenas Landsat.
+- Inclusão de outras variáveis meteorológicas e ambientais.
+- Validação adicional do NDBI.
+- Investigação de estratégias mais robustas de generalização temporal.
+- Integração de indicadores socioeconômicos.
+- Desenvolvimento e validação de um indicador composto de vulnerabilidade climática urbana.
 
-A implementação dos modelos preditivos, a integração de variáveis socioeconômicas e a construção de indicadores compostos de vulnerabilidade climática permanecem como etapas de desenvolvimento necessárias para contemplar integralmente o escopo da proposta original.
+## 14. Considerações finais
 
-## 10. Considerações finais
+O projeto resultou na implementação de um dashboard científico público que integra sensoriamento remoto, geoprocessamento, análise estatística e aprendizado de máquina.
 
-O dashboard científico desenvolvido constitui o **produto computacional de visualização geoespacial interativa previsto na proposta de pesquisa de abril de 2026**.
+Além das funcionalidades de visualização, foram desenvolvidos experimentos de modelagem espacial e temporal, com avaliação por métricas quantitativas e documentação de suas limitações.
 
-Sua implementação demonstra que as atividades de processamento de imagens Landsat, análise exploratória e geoprocessamento resultaram em uma ferramenta funcional, capaz de apresentar e comparar informações sobre a distribuição espacial da temperatura de superfície no município do Rio de Janeiro.
-
-Dessa forma, o produto representa uma entrega efetiva e verificável da pesquisa, especialmente no que se refere à construção do protótipo interativo previsto nos objetivos específicos e no cronograma de execução.
-
-A ferramenta também constitui uma base para a incorporação futura de modelos preditivos e indicadores integrados de vulnerabilidade climática, em continuidade aos demais objetivos estabelecidos na proposta original.
+O produto constitui uma entrega computacional verificável da pesquisa e uma base para o desenvolvimento de métodos mais abrangentes de análise e modelagem das ilhas de calor urbanas.
 
 ---
 
@@ -185,8 +270,8 @@ A ferramenta também constitui uma base para a incorporação futura de modelos 
 
 **Proposta original:** Abril de 2026.
 
-**Produto computacional:** Dashboard científico interativo para análise exploratória de ilhas de calor de superfície no Rio de Janeiro.
+**Período analisado:** 2020–2025.
 
-**Período dos dados:** 2020–2025.
+**Produto computacional:** Dashboard científico interativo de Ilhas de Calor de Superfície.
 
-**Estado do produto:** Protótipo funcional, com documentação e aprimoramentos em desenvolvimento.
+**Estado atual:** Dashboard funcional e publicado; modelagem espacial e experimentos de validação temporal implementados; extensões científicas em desenvolvimento.
