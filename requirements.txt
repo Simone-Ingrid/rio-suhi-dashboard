@@ -6,3 +6,5 @@ rasterio
 folium
 streamlit-folium
 branca
+scikit-learn==1.6.1
+joblib==1.6.0
