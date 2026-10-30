@@ -402,3 +402,75 @@ st.info(
     "Diferenças de cor não representam, isoladamente, "
     "mudanças comprovadas na intensidade das ilhas de calor."
 )
+
+# === MODELAGEM PREDITIVA DA LST (2025) ===
+st.divider()
+st.subheader("Modelagem preditiva da temperatura de superfície — 2025")
+st.caption(
+    "Estimativa estatística da LST (°C) a partir do NDVI, com modelos "
+    "treinados em pixels Landsat de 2025. Não constitui previsão meteorológica futura."
+)
+
+PASTA_RESULTADOS = BASE_DIR / "results"
+CAMINHO_MODELO = BASE_DIR / "models" / "random_forest_lst_2025_compactado.joblib"
+
+arquivo_metricas = PASTA_RESULTADOS / "metricas_modelos_2025.csv"
+if arquivo_metricas.is_file():
+    try:
+        metricas = pd.read_csv(arquivo_metricas)
+        st.markdown("**Desempenho dos modelos no conjunto de teste espacial**")
+        st.dataframe(metricas, use_container_width=True, hide_index=True)
+    except Exception as erro:
+        st.warning(f"Não foi possível ler as métricas: {erro}")
+else:
+    st.warning("Arquivo de métricas não encontrado na pasta results/.")
+
+col_fig_1, col_fig_2 = st.columns(2)
+with col_fig_1:
+    figura = PASTA_RESULTADOS / "comparacao_modelos_2025.png"
+    if figura.is_file():
+        st.image(str(figura), caption="Comparação de MAE e RMSE", use_container_width=True)
+    else:
+        st.warning("Gráfico de comparação dos modelos não encontrado.")
+with col_fig_2:
+    figura = PASTA_RESULTADOS / "lst_observada_prevista_2025.png"
+    if figura.is_file():
+        st.image(str(figura), caption="LST observada versus estimada — Random Forest", use_container_width=True)
+    else:
+        st.warning("Gráfico de LST observada versus estimada não encontrado.")
+
+st.markdown("**Estimativa interativa com Random Forest**")
+st.write("Informe um valor de NDVI para estimar a LST correspondente no modelo de 2025.")
+ndvi_entrada = st.number_input(
+    "NDVI do pixel",
+    min_value=-1.0,
+    max_value=1.0,
+    value=0.30,
+    step=0.05,
+    format="%.2f",
+    help="O NDVI varia teoricamente entre -1 e 1. Valores fora da faixa "
+         "observada no treinamento podem gerar estimativas pouco confiáveis."
+)
+
+@st.cache_resource(show_spinner="Carregando modelo Random Forest...")
+def carregar_modelo_lst(caminho):
+    import joblib
+    return joblib.load(caminho)
+
+if CAMINHO_MODELO.is_file():
+    try:
+        modelo_lst = carregar_modelo_lst(str(CAMINHO_MODELO))
+        entrada_modelo = pd.DataFrame({"NDVI": [float(ndvi_entrada)]})
+        estimativa_lst = float(modelo_lst.predict(entrada_modelo)[0])
+        st.metric("LST estimada pelo Random Forest", f"{estimativa_lst:.2f} °C")
+    except Exception as erro:
+        st.error(f"Não foi possível carregar ou executar o modelo: {erro}")
+else:
+    st.warning("Modelo compactado não encontrado na pasta models/.")
+
+st.info(
+    "Limitações metodológicas: modelo treinado somente com NDVI e LST de 2025; "
+    "avaliação realizada por separação espacial de blocos de pixels. "
+    "A estimativa não demonstra causalidade, não representa previsão para anos futuros "
+    "e deve ser interpretada com cautela para valores de NDVI não observados no treinamento."
+)
