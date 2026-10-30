@@ -474,3 +474,99 @@ st.info(
     "A estimativa não demonstra causalidade, não representa previsão para anos futuros "
     "e deve ser interpretada com cautela para valores de NDVI não observados no treinamento."
 )
+
+
+
+# ============================================================
+# MODELAGEM MULTIANUAL — VALIDAÇÃO TEMPORAL LOYO
+# ============================================================
+
+st.divider()
+
+st.header("Modelagem multianual da temperatura de superfície")
+
+st.caption(
+    "Avaliação exploratória da generalização temporal dos "
+    "modelos entre 2020 e 2025, utilizando validação "
+    "Leave-One-Year-Out (LOYO)."
+)
+
+# Caminhos relativos à raiz do repositório
+raiz_projeto = Path(__file__).resolve().parent.parent
+
+arquivo_metricas = (
+    raiz_projeto / "data" /
+    "comparacao_modelos_multianuais.csv"
+)
+
+arquivo_grafico_modelos = (
+    raiz_projeto / "assets" /
+    "comparacao_modelos_multianuais.png"
+)
+
+arquivo_grafico_rf = (
+    raiz_projeto / "assets" /
+    "random_forest_mae_por_ano.png"
+)
+
+# Tabela comparativa
+st.subheader("Comparação dos modelos")
+
+if arquivo_metricas.exists():
+    metricas_multi = pd.read_csv(arquivo_metricas)
+
+    st.dataframe(
+        metricas_multi,
+        use_container_width=True,
+        hide_index=True
+    )
+else:
+    st.warning("Arquivo de métricas multianuais não encontrado.")
+
+# Gráfico de comparação geral
+if arquivo_grafico_modelos.exists():
+    st.image(
+        str(arquivo_grafico_modelos),
+        caption="Comparação de MAE e RMSE médios — LOYO",
+        use_container_width=True
+    )
+
+# Gráfico de desempenho anual
+st.subheader("Desempenho temporal do Random Forest")
+
+if arquivo_grafico_rf.exists():
+    st.image(
+        str(arquivo_grafico_rf),
+        caption="MAE por ano de teste — Random Forest",
+        use_container_width=True
+    )
+
+# Interpretação científica
+st.subheader("Interpretação dos resultados")
+
+st.markdown("""
+A inclusão da temperatura do ar no horário de aquisição
+das cenas Landsat reduziu aproximadamente **38,5% do MAE
+médio** do Random Forest em comparação ao modelo que
+utiliza somente NDVI.
+
+O modelo com NDVI e temperatura do ar apresentou:
+
+- **MAE médio:** 3,2949 °C
+- **RMSE médio:** 4,1389 °C
+- **R² médio:** 0,3887
+
+Os resultados indicam melhoria do desempenho médio
+na validação temporal, embora existam diferenças
+importantes entre os anos avaliados.
+""")
+
+st.info(
+    "Limitações metodológicas: foram utilizadas apenas "
+    "seis cenas Landsat, uma por ano. A temperatura do ar "
+    "é uma variável compartilhada pelos pixels de cada "
+    "cena. O R² apresentado corresponde à média dos "
+    "R² anuais. Os resultados são exploratórios e não "
+    "constituem uma previsão validada para anos futuros."
+)
+
