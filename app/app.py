@@ -707,24 +707,25 @@ def carregar_geojson_socioambiental(caminho):
         return json.load(f)
 
 if arquivo_geo.exists():
-
     dados_geo = carregar_geojson_socioambiental(
         str(arquivo_geo)
     )
-
     mapa_interativo = folium.Map(
         location=[-22.91, -43.40],
         zoom_start=10,
-        tiles="CartoDB positron",
+        tiles="OpenStreetMap",
         prefer_canvas=True
     )
-
+    # Ajustar o mapa aos limites do município
+    mapa_interativo.fit_bounds([
+        [-23.0824, -43.7962],
+        [-22.7461, -43.0990]
+    ])
     cores_classes = {
         "Calor elevado e baixo rendimento": "#D73027",
         "Outras combinações": "#BDBDBD",
         "Dados insuficientes": "#FFFFFF"
     }
-
     # Preparar os atributos para exibição
     for feicao in dados_geo["features"]:
 
