@@ -678,3 +678,121 @@ st.info(
     "validado de risco climático ou uma relação causal."
 )
 
+# ============================================================
+# MAPA INTERATIVO SOCIOAMBIENTAL
+# ============================================================
+
+import gzip
+import json
+import folium
+from streamlit_folium import st_folium
+
+st.divider()
+st.subheader("Mapa interativo por setor censitário")
+
+st.caption(
+    "Clique em um setor para consultar seus indicadores. "
+    "LST: Landsat 2025 | Rendimento: Censo 2022."
+)
+
+arquivo_geo = (
+    Path(__file__).resolve().parent.parent
+    / "data"
+    / "setores_rio_socioambiental_2025.geojson.gz"
+)
+
+@st.cache_data
+def carregar_geojson_socioambiental(caminho):
+    with gzip.open(caminho, "rt", encoding="utf-8") as f:
+        return json.load(f)
+
+if arquivo_geo.exists():
+
+    dados_geo = carregar_geojson_socioambiental(
+        str(arquivo_geo)
+    )
+
+    mapa_interativo = folium.Map(
+        location=[-22.91, -43.40],
+        zoom_start=10,
+        tiles="CartoDB positron",
+        prefer_canvas=True
+    )
+
+    cores_classes = {
+        "Calor elevado e baixo rendimento": "#D73027",
+        "Outras combinações": "#BDBDBD",
+        "Dados insuficientes": "#FFFFFF"
+    }
+
+    # Preparar os atributos para exibição
+    for feicao in dados_geo["features"]:
+
+        p = feicao["properties"]
+
+        for campo in [
+            "LST_MEDIA_2025",
+            "RENDA_MEDIANA"
+        ]:
+            valor = p.get(campo)
+
+            if valor is not None:
+                p[campo] = round(float(valor), 2)
+
+    folium.GeoJson(
+        dados_geo,
+        name="Setores censitários",
+        style_function=lambda feature: {
+            "fillColor": cores_classes.get(
+                feature["properties"].get(
+                    "CLASSE_SOCIOAMBIENTAL"
+                ),
+                "#FFFFFF"
+            ),
+            "color": "#666666",
+            "weight": 0.2,
+            "fillOpacity": 0.75
+        },
+        highlight_function=lambda feature: {
+            "weight": 2,
+            "color": "#222222",
+            "fillOpacity": 0.9
+        },
+        tooltip=folium.GeoJsonTooltip(
+            fields=[
+                "CD_SETOR",
+                "CLASSE_SOCIOAMBIENTAL",
+                "LST_MEDIA_2025",
+                "RENDA_MEDIANA",
+                "PIXELS_VALIDOS"
+            ],
+            aliases=[
+                "Setor censitário:",
+                "Classificação:",
+                "LST média (°C):",
+                "Rendimento mediano (R$):",
+                "Pixels válidos:"
+            ],
+            labels=True,
+            sticky=False
+        )
+    ).add_to(mapa_interativo)
+
+    st_folium(
+        mapa_interativo,
+        height=550,
+        use_container_width=True,
+        returned_objects=[]
+    )
+
+    st.caption(
+        "Classificação exploratória por quartis. "
+        "Os setores com dados insuficientes não receberam "
+        "classificação de prioridade socioambiental."
+    )
+
+else:
+    st.warning(
+        "Arquivo geográfico socioambiental não encontrado."
+    )
+
