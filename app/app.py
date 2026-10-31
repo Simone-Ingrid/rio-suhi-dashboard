@@ -570,3 +570,111 @@ st.info(
     "constituem uma previsão validada para anos futuros."
 )
 
+
+
+# ============================================================
+# INTEGRAÇÃO SOCIOAMBIENTAL — RIO DE JANEIRO
+# ============================================================
+
+st.divider()
+
+st.header("Análise socioambiental do calor superficial")
+
+st.markdown(
+    "Integração exploratória da temperatura superficial "
+    "Landsat 2025 com indicadores de rendimento dos "
+    "responsáveis pelos domicílios do Censo 2022 (IBGE)."
+)
+
+# Indicadores da classificação
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric(
+        "Setores analisados",
+        "12.760"
+    )
+
+with col2:
+    st.metric(
+        "Setores prioritários",
+        "770"
+    )
+
+with col3:
+    st.metric(
+        "Percentual prioritário",
+        "6,03%"
+    )
+
+st.subheader("Distribuição espacial")
+
+# Caminho da imagem
+mapa_socioambiental = (
+    Path(__file__).resolve().parent.parent
+    / "assets"
+    / "mapa_socioambiental_rio_2025.png"
+)
+
+if mapa_socioambiental.exists():
+    st.image(
+        str(mapa_socioambiental),
+        caption=(
+            "Setores censitários com calor superficial "
+            "elevado e baixo rendimento mediano."
+        ),
+        use_container_width=True
+    )
+else:
+    st.warning("Mapa socioambiental não encontrado.")
+
+st.subheader("Critérios da classificação")
+
+st.markdown("""
+Foram considerados elegíveis os setores censitários
+com rendimento mediano válido e pelo menos cinco
+pixels válidos de LST.
+
+**Critérios utilizados:**
+
+- **Calor elevado:** LST média ≥ 48,27 °C.
+- **Baixo rendimento:** rendimento mediano ≤ R$ 1.290,75.
+- **Classe prioritária:** ocorrência simultânea
+  das duas condições.
+
+Dos 13.782 setores censitários do município,
+12.760 atenderam aos critérios de elegibilidade.
+
+Entre os setores elegíveis, 770 (6,03%) foram
+classificados com calor elevado e baixo rendimento.
+""")
+
+st.subheader("Associação entre rendimento e temperatura")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Correlação de Pearson", "−0,4915")
+
+with col2:
+    st.metric("Correlação de Spearman", "−0,2817")
+
+st.markdown("""
+As correlações negativas indicam uma associação
+entre menores rendimentos medianos e temperaturas
+superficiais mais elevadas nos setores analisados.
+
+As correlações foram calculadas com os 13.359
+setores que apresentaram ambas as variáveis válidas,
+sem aplicação do filtro mínimo de cinco pixels.
+""")
+
+st.info(
+    "Esta análise é exploratória. A LST corresponde "
+    "a uma cena Landsat de 2025, enquanto os dados "
+    "econômicos são do Censo 2022. A classificação "
+    "utiliza limiares relativos à distribuição dos "
+    "setores elegíveis e não representa um índice "
+    "validado de risco climático ou uma relação causal."
+)
+
