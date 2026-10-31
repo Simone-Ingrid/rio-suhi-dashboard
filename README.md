@@ -258,7 +258,7 @@ A execução depende da presença dos arquivos de dados e do modelo indicados na
 | Integração experimental de temperatura do ar | Implementada |
 | **Integração socioeconômica com Censo 2022** | **Implementada** |
 | **Mapa estático e mapa interativo por setor censitário** | **Implementados** |
-| Indicador composto e validado de vulnerabilidade climática | Não implementado |
+| Indicador composto e validado de vulnerabilidade climática | Trabalho futuro |
 | Validação com mais cenas, anos e condições ambientais | Trabalho futuro |
 | Validação adicional do NDBI | Trabalho futuro |
 
