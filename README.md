@@ -8,7 +8,7 @@
 
 ## 1. Visão geral
 
-Este repositório documenta o produto computacional associado à pesquisa **“Modelo Computacional para Identificação e Predição de Ilhas de Calor Urbanas no Município do Rio de Janeiro utilizando Ciência de Dados e Geoprocessamento”**, proposta por **Simone Gama** em abril de 2026.
+Este repositório documenta o produto computacional associado à pesquisa **“Modelo Computacional para Identificação e Predição de Ilhas de Calor Urbanas no Município do Rio de Janeiro utilizando Ciência de Dados e Geoprocessamento”**, proposta por **Simone Gama** em abril de 2026 ao Programa Pesquisa, Produtividade, Desenvolvimento Tecnológico e Extensão Inovadora (PPDTEI).
 
 O dashboard, desenvolvido em Python e Streamlit, reúne imagens Landsat 8/9, indicadores espectrais, dados meteorológicos históricos e informações censitárias. Seu objetivo é apoiar a investigação exploratória da distribuição espacial da temperatura da superfície terrestre (*Land Surface Temperature*, **LST**), da relação entre LST e vegetação e da coincidência espacial entre calor superficial elevado e baixo rendimento.
 
